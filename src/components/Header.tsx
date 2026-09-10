@@ -30,26 +30,31 @@ export default function Header({
   onLogout,
 }: HeaderProps) {
   return (
-    <header className="z-20 relative flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b bg-card px-4 py-2.5 shadow-sm">
+    <header className="z-20 relative flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b bg-card px-3 py-2 shadow-sm sm:px-4 sm:py-2.5">
       <span
         className="absolute inset-x-0 top-0 h-1 bg-[#5a6f43]"
         aria-hidden="true"
       />
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2">
         <span
           className="inline-block h-4 w-4 shrink-0 rounded-[3px] bg-[#5a6f43]"
           aria-hidden="true"
         />
         <div>
-          <h1 className="text-lg font-bold leading-tight">StudentNS</h1>
-          <p className="text-xs text-muted-foreground">
+          <h1 className="text-base font-bold leading-tight sm:text-lg">StudentNS</h1>
+          <p className="hidden text-xs text-muted-foreground min-[420px]:block">
             Studentski vodič kroz Novi Sad
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={onOpenStarterPack}>
+      <div className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-1.5 sm:gap-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="hidden sm:inline-flex"
+          onClick={onOpenStarterPack}
+        >
           Starter Pack
         </Button>
 
