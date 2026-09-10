@@ -63,11 +63,11 @@ export default function Sidebar({
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-1 border-b px-2 py-2">
+      <div className="flex items-center gap-1 overflow-x-auto border-b px-2 py-2 [scrollbar-width:none]">
         <button
           onClick={() => onCategoryChange("all")}
           className={cn(
-            "rounded-sm border px-2.5 py-1 text-xs font-medium",
+            "shrink-0 whitespace-nowrap rounded-sm border px-2.5 py-1 text-xs font-medium",
             activeCategory === "all"
               ? "border-neutral-900 bg-neutral-900 text-white"
               : "border-neutral-300 bg-background hover:bg-muted"
@@ -80,7 +80,7 @@ export default function Sidebar({
             key={cat.id}
             onClick={() => onCategoryChange(cat.id)}
             className={cn(
-              "flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-xs font-medium",
+              "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm border px-2.5 py-1 text-xs font-medium",
               activeCategory === cat.id
                 ? "border-neutral-900 bg-neutral-900 text-white"
                 : "border-neutral-300 bg-background hover:bg-muted"
