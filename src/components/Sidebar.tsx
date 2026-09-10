@@ -36,7 +36,7 @@ export default function Sidebar({
       : places.filter((p) => p.category === activeCategory);
 
   return (
-    <aside className="absolute left-3 top-3 z-10 flex max-h-[42vh] w-64 max-w-[60vw] flex-col overflow-hidden rounded border bg-card shadow-sm sm:bottom-3 sm:max-h-none sm:w-80 sm:max-w-[85vw]">
+    <aside className="absolute left-3 top-3 z-10 flex max-h-[55vh] w-72 max-w-[70vw] flex-col overflow-hidden rounded border bg-card shadow-sm sm:bottom-3 sm:max-h-none sm:w-80 sm:max-w-[85vw]">
       <div className="flex items-center justify-between border-b border-[#e3e7cf] bg-[#f1f3e0] px-3 py-2.5">
         <h2 className="text-sm font-semibold text-[#3d5226]">
           Mesta u Novom Sadu
@@ -95,7 +95,7 @@ export default function Sidebar({
         ))}
       </div>
 
-      <div className="flex-1 space-y-1.5 overflow-y-auto p-2">
+      <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-2">
         {filtered.length === 0 && (
           <p className="px-2 py-6 text-center text-sm text-muted-foreground">
             Nema mesta u ovoj kategoriji jos.

@@ -52,7 +52,6 @@ export default function Header({
         <Button
           variant="outline"
           size="sm"
-          className="hidden sm:inline-flex"
           onClick={onOpenStarterPack}
         >
           Starter Pack

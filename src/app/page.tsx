@@ -341,16 +341,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!("geolocation" in navigator) || !navigator.permissions) return;
-    navigator.permissions
-      .query({ name: "geolocation" })
-      .then((status) => {
-        if (status.state === "granted") handleLocate();
-      })
-      .catch(() => undefined);
-  }, [handleLocate]);
-
-  useEffect(() => {
     if (!supabase) return;
 
     let cancelled = false;
