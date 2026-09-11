@@ -66,7 +66,12 @@ export default function PlaceMap({
   onLocate,
 }: PlaceMapProps) {
   const [zoom, setZoom] = useState(13);
-  const labelOpacity = Math.min(1, Math.max(0, (zoom - 13.5) / 2));
+
+  const ALWAYS_LABELED = new Set(["fakulteti-obrazovanje", "domovi"]);
+  const labelOpacity = (category: string) =>
+    ALWAYS_LABELED.has(category)
+      ? 1
+      : Math.min(1, Math.max(0, (zoom - 13.25) / 1.5));
 
   const starBadge = (
     <span className="absolute -right-1.5 -top-1.5 z-10 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#b8860b] shadow-sm">
@@ -107,16 +112,16 @@ export default function PlaceMap({
             <div className="flex flex-col items-center">
               <div
                 className={cn(
-                  "mb-0.5 max-w-[160px] rounded-sm border bg-white/95 px-1 py-[2px] text-center shadow-sm",
+                  "mb-0.5 max-w-[120px] rounded-sm border bg-white/95 px-0.5 py-[1px] text-center shadow-sm",
                   isSelected ? "border-neutral-900" : "border-neutral-300",
                   isStudy && "border-emerald-800",
                   isUserAdded && "border-orange-500"
                 )}
-                style={{ opacity: labelOpacity }}
+                style={{ opacity: labelOpacity(place.category) }}
               >
                 <div
                   className={cn(
-                    "max-w-[148px] truncate text-[10px] leading-none text-neutral-900",
+                    "max-w-[112px] truncate text-[8px] leading-none text-neutral-900",
                     isStudy && "font-bold"
                   )}
                 >
@@ -124,7 +129,7 @@ export default function PlaceMap({
                 </div>
                 <div
                   className={cn(
-                    "mt-[2px] flex items-center justify-center gap-0.5 text-[9px] leading-none",
+                    "mt-[1px] flex items-center justify-center gap-0.5 text-[7px] leading-none",
                     isStudy
                       ? "font-semibold text-emerald-800"
                       : "font-medium text-neutral-600"
@@ -190,7 +195,7 @@ export default function PlaceMap({
           </Marker>
         );
       }),
-    [places, selectedPlaceId, onSelectPlace, profilesById, favoriteIds, labelOpacity]
+    [places, selectedPlaceId, onSelectPlace, profilesById, favoriteIds, zoom]
   );
 
   const handleClick = (e: MapLayerMouseEvent) => {

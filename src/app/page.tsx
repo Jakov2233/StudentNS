@@ -275,7 +275,7 @@ export default function Home() {
   const [places, setPlaces] = useState<Place[]>(INITIAL_PLACES);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showStarterPack, setShowStarterPack] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
