@@ -97,10 +97,24 @@ export async function insertPlace(
     .from("places")
     .insert(row)
     .select("*")
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
-  return mapRow(inserted as Record<string, unknown>);
+
+  if (inserted) return mapRow(inserted as Record<string, unknown>);
+
+  const all = await fetchPlaces();
+  const match = all.find(
+    (p) =>
+      p.created_by === userId &&
+      p.name === data.name &&
+      p.address === (data.address || null)
+  );
+  if (match) return match;
+
+  throw new Error(
+    "Mesto nije potvrđeno zbog istekle prijave. Pokušaj ponovo — obično odmah prođe."
+  );
 }
 
 export async function uploadPlaceImage(
