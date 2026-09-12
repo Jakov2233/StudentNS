@@ -408,6 +408,22 @@ export default function Home() {
     };
   }, [loadProfiles]);
 
+  useEffect(() => {
+    const client = supabase;
+    if (!client) return;
+    const channel = client
+      .channel("profiles-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles" },
+        () => loadProfiles()
+      )
+      .subscribe();
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, [loadProfiles]);
+
   const selectedPlace =
     places.find((p) => p.id === selectedPlaceId) ?? null;
 

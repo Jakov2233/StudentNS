@@ -320,7 +320,7 @@ export default function ChatPanel({
                 )}
               </div>
               <p className="mt-1 break-words text-sm leading-snug">
-                {m.message}
+                {String(m.message ?? "")}
               </p>
             </div>
           );
