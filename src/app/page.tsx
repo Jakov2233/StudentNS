@@ -8,6 +8,7 @@ import type { User } from "@supabase/supabase-js";
 import AddPlaceModal from "@/components/AddPlaceModal";
 import AuthModal from "@/components/AuthModal";
 import ChatPanel from "@/components/ChatPanel";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Header from "@/components/Header";
 import PlaceCard from "@/components/PlaceCard";
 import PlaceMap from "@/components/PlaceMap";
@@ -584,8 +585,9 @@ export default function Home() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header
-        onAddPlace={openAddPlace}
+      <ErrorBoundary>
+        <Header
+          onAddPlace={openAddPlace}
         onOpenStarterPack={() => setShowStarterPack(true)}
         onOpenChat={() => setChatOpen(true)}
         isPickingLocation={pickingLocation}
@@ -746,6 +748,7 @@ export default function Home() {
           />
         )}
       </main>
+      </ErrorBoundary>
 
       <footer className="flex items-center justify-center gap-4 border-t bg-background px-4 py-1.5 text-xs text-muted-foreground">
         <Link href="/privacy" className="hover:underline">

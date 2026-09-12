@@ -131,7 +131,11 @@ export async function uploadPlaceImage(
 
   const { error } = await supabase.storage
     .from("place-photos")
-    .upload(path, file, { cacheControl: "3600", upsert: false });
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type || "image/jpeg",
+    });
 
   if (error) throw error;
 

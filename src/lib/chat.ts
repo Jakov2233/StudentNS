@@ -3,10 +3,10 @@ import type { ChatMessage } from "@/types";
 
 function mapRow(row: Record<string, unknown>): ChatMessage {
   return {
-    id: row.id as string,
-    user_id: row.user_id as string,
-    message: row.message as string,
-    created_at: row.created_at as string,
+    id: String(row.id ?? ""),
+    user_id: String(row.user_id ?? ""),
+    message: String(row.message ?? ""),
+    created_at: String(row.created_at ?? ""),
   };
 }
 

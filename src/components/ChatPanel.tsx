@@ -176,7 +176,8 @@ export default function ChatPanel({
   const authorOf = (uid: string) => {
     const p = profilesById[uid] ?? chatProfiles[uid];
     return {
-      username: p?.username ?? "Student",
+      username:
+        typeof p?.username === "string" && p.username ? p.username : "Student",
       avatar_url: p?.avatar_url ?? null,
     };
   };

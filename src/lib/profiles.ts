@@ -63,7 +63,11 @@ export async function uploadAvatar(
 
   const { error } = await supabase.storage
     .from("avatars")
-    .upload(path, file, { cacheControl: "3600", upsert: false });
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type || "image/jpeg",
+    });
 
   if (error) throw error;
 
