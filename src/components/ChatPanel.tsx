@@ -59,41 +59,9 @@ export default function ChatPanel({
   const client = supabase;
 
   useEffect(() => {
-    if (!client) return;
-    const channel = client
-      .channel("global-chat")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "chat_messages" },
-        (payload) => {
-          const row = payload.new as Record<string, unknown>;
-          const msg: ChatMessage = {
-            id: row.id as string,
-            user_id: row.user_id as string,
-            message: row.message as string,
-            created_at: row.created_at as string,
-          };
-          setMessages((prev) =>
-            prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]
-          );
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "chat_messages" },
-        (payload) => {
-          const old = payload.old as Record<string, unknown> | null;
-          if (!old) return;
-          const id = old.id as string;
-          setMessages((prev) => prev.filter((m) => m.id !== id));
-        }
-      )
-      .subscribe();
-
-    return () => {
-      client.removeChannel(channel);
-    };
-  }, [client]);
+  // Privremeno isključeno radi testiranja — čet i dalje radi preko 15s pollinga ispod.
+  return;
+}, [client]);
 
   useEffect(() => {
     if (!client) return;
