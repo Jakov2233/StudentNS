@@ -174,16 +174,30 @@ export default function ProfileModal({
   const handleAvatarFile = async (file: File | null) => {
     setError(null);
     if (!file) return;
-    if (!isImageType(file.type)) {
+    const looksLikeImage =
+      isImageType(file.type) ||
+      /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.name);
+    if (!looksLikeImage) {
       setError("Dozvoljene su samo slike (JPG, PNG, WEBP, HEIC).");
       return;
     }
     setAvatarBusy(true);
     try {
-      const ready =
-        isHeicLike(file.type) || file.size >= 512 * 1024
-          ? await prepareImage(file, { maxDim: 512, square: true })
-          : file;
+      const needsConvert =
+        isHeicLike(file.type) ||
+        !isImageType(file.type) ||
+        file.size >= 512 * 1024;
+      let ready: File;
+      if (needsConvert) {
+        try {
+          ready = await prepareImage(file, { maxDim: 512, square: true });
+        } catch (err) {
+          reportError("ProfileModal.prepareImage", err);
+          ready = file;
+        }
+      } else {
+        ready = file;
+      }
       setPendingAvatar(ready);
       setPendingAvatarUrl(URL.createObjectURL(ready));
       setRemoveAvatar(false);
