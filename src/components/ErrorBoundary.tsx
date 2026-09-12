@@ -1,7 +1,7 @@
 "use client";
 
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { supabase } from "@/lib/supabase";
+import { reportError } from "@/lib/errorLog";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -22,25 +22,7 @@ export default class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    const message = String(error?.message ?? error);
-    const client = supabase;
-    if (!client) return;
-    void client
-      .from("client_errors")
-      .insert({
-        url:
-          typeof window !== "undefined"
-            ? window.location.href.slice(0, 1000)
-            : "",
-        message: message.slice(0, 2000),
-        stack: String(error?.stack ?? "").slice(0, 2000),
-        component: String(info?.componentStack ?? "").slice(0, 2000),
-        user_agent:
-          typeof navigator !== "undefined"
-            ? navigator.userAgent.slice(0, 500)
-            : "",
-      })
-      .then(() => undefined, () => undefined);
+    reportError(`ErrorBoundary:${String(info?.componentStack ?? "").slice(0, 200)}`, error);
   }
 
   render(): ReactNode {

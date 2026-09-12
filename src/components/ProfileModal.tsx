@@ -15,6 +15,7 @@ import {
   unbanUser,
 } from "@/lib/moderators";
 import { deleteAvatar, uploadAvatar } from "@/lib/profiles";
+import { reportError } from "@/lib/errorLog";
 import type { Place, Profile } from "@/types";
 
 interface ProfileModalProps {
@@ -221,11 +222,14 @@ export default function ProfileModal({
       if (pendingAvatar) {
         try {
           avatarUrl = await uploadAvatar(pendingAvatar, profile.id);
-        } catch {
+        } catch (err) {
           avatarUrl = profile.avatar_url;
-          setAvatarNote(
-            "Profilna slika nije sačuvana (problem sa serverom) — profil se čuva bez nje."
-          );
+          const msg =
+            err instanceof Error
+              ? err.message
+              : "Nepoznata greska pri snimanju slike.";
+          setAvatarNote(`Profilna slika nije sačuvana: ${msg}`);
+          reportError("ProfileModal.uploadAvatar", err);
         }
       } else if (!removeAvatar) {
         avatarUrl = profile.avatar_url;

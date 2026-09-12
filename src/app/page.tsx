@@ -539,7 +539,11 @@ export default function Home() {
     avatar_url: string | null;
   }) => {
     if (!user) throw new Error("Morate biti prijavljeni.");
-    const updated = await updateProfile(user.id, fields);
+    const fallback =
+      typeof user?.user_metadata?.username === "string"
+        ? user.user_metadata.username
+        : (user.email ?? "student");
+    const updated = await updateProfile(user.id, fields, fallback);
     setProfilesById((prev) => ({ ...prev, [updated.id]: updated }));
     return updated;
   };
