@@ -15,7 +15,6 @@ import {
   unbanUser,
 } from "@/lib/moderators";
 import { deleteAvatar, uploadAvatar } from "@/lib/profiles";
-import { reportError } from "@/lib/errorLog";
 import type { Place, Profile } from "@/types";
 
 interface ProfileModalProps {
@@ -174,30 +173,16 @@ export default function ProfileModal({
   const handleAvatarFile = async (file: File | null) => {
     setError(null);
     if (!file) return;
-    const looksLikeImage =
-      isImageType(file.type) ||
-      /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.name);
-    if (!looksLikeImage) {
+    if (!isImageType(file.type)) {
       setError("Dozvoljene su samo slike (JPG, PNG, WEBP, HEIC).");
       return;
     }
     setAvatarBusy(true);
     try {
-      const needsConvert =
-        isHeicLike(file.type) ||
-        !isImageType(file.type) ||
-        file.size >= 512 * 1024;
-      let ready: File;
-      if (needsConvert) {
-        try {
-          ready = await prepareImage(file, { maxDim: 512, square: true });
-        } catch (err) {
-          reportError("ProfileModal.prepareImage", err);
-          ready = file;
-        }
-      } else {
-        ready = file;
-      }
+      const ready =
+        isHeicLike(file.type) || file.size >= 512 * 1024
+          ? await prepareImage(file, { maxDim: 512, square: true })
+          : file;
       setPendingAvatar(ready);
       setPendingAvatarUrl(URL.createObjectURL(ready));
       setRemoveAvatar(false);
@@ -236,14 +221,11 @@ export default function ProfileModal({
       if (pendingAvatar) {
         try {
           avatarUrl = await uploadAvatar(pendingAvatar, profile.id);
-        } catch (err) {
+        } catch {
           avatarUrl = profile.avatar_url;
-          const msg =
-            err instanceof Error
-              ? err.message
-              : "Nepoznata greska pri snimanju slike.";
-          setAvatarNote(`Profilna slika nije sačuvana: ${msg}`);
-          reportError("ProfileModal.uploadAvatar", err);
+          setAvatarNote(
+            "Profilna slika nije sačuvana (problem sa serverom) — profil se čuva bez nje."
+          );
         }
       } else if (!removeAvatar) {
         avatarUrl = profile.avatar_url;

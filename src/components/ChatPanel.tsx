@@ -59,9 +59,41 @@ export default function ChatPanel({
   const client = supabase;
 
   useEffect(() => {
-  // Privremeno isključeno radi testiranja — čet i dalje radi preko 15s pollinga ispod.
-  return;
-}, [client]);
+    if (!client) return;
+    const channel = client
+      .channel("global-chat")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "chat_messages" },
+        (payload) => {
+          const row = payload.new as Record<string, unknown>;
+          const msg: ChatMessage = {
+            id: row.id as string,
+            user_id: row.user_id as string,
+            message: row.message as string,
+            created_at: row.created_at as string,
+          };
+          setMessages((prev) =>
+            prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]
+          );
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "chat_messages" },
+        (payload) => {
+          const old = payload.old as Record<string, unknown> | null;
+          if (!old) return;
+          const id = old.id as string;
+          setMessages((prev) => prev.filter((m) => m.id !== id));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, [client]);
 
   useEffect(() => {
     if (!client) return;
@@ -144,8 +176,7 @@ export default function ChatPanel({
   const authorOf = (uid: string) => {
     const p = profilesById[uid] ?? chatProfiles[uid];
     return {
-      username:
-        typeof p?.username === "string" && p.username ? p.username : "Student",
+      username: p?.username ?? "Student",
       avatar_url: p?.avatar_url ?? null,
     };
   };
@@ -288,7 +319,7 @@ export default function ChatPanel({
                 )}
               </div>
               <p className="mt-1 break-words text-sm leading-snug">
-                {String(m.message ?? "")}
+                {m.message}
               </p>
             </div>
           );

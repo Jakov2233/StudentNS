@@ -164,9 +164,7 @@ export default function PlaceMap({
                         isSelected ? "border-neutral-900" : "border-orange-500"
                       )}
                     >
-                      {author?.username
-                        ? author.username.slice(0, 2).toUpperCase()
-                        : "U"}
+                      {author?.username.slice(0, 2).toUpperCase() ?? "U"}
                     </span>
                     {isFavorite && starBadge}
                   </div>

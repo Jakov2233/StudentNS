@@ -8,7 +8,6 @@ import type { User } from "@supabase/supabase-js";
 import AddPlaceModal from "@/components/AddPlaceModal";
 import AuthModal from "@/components/AuthModal";
 import ChatPanel from "@/components/ChatPanel";
-import ErrorBoundary from "@/components/ErrorBoundary";
 import Header from "@/components/Header";
 import PlaceCard from "@/components/PlaceCard";
 import PlaceMap from "@/components/PlaceMap";
@@ -408,22 +407,6 @@ export default function Home() {
     };
   }, [loadProfiles]);
 
-  useEffect(() => {
-    const client = supabase;
-    if (!client) return;
-    const channel = client
-      .channel("profiles-live")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "profiles" },
-        () => loadProfiles()
-      )
-      .subscribe();
-    return () => {
-      client.removeChannel(channel);
-    };
-  }, [loadProfiles]);
-
   const selectedPlace =
     places.find((p) => p.id === selectedPlaceId) ?? null;
 
@@ -539,11 +522,7 @@ export default function Home() {
     avatar_url: string | null;
   }) => {
     if (!user) throw new Error("Morate biti prijavljeni.");
-    const fallback =
-      typeof user?.user_metadata?.username === "string"
-        ? user.user_metadata.username
-        : (user.email ?? "student");
-    const updated = await updateProfile(user.id, fields, fallback);
+    const updated = await updateProfile(user.id, fields);
     setProfilesById((prev) => ({ ...prev, [updated.id]: updated }));
     return updated;
   };
@@ -605,9 +584,8 @@ export default function Home() {
 
   return (
     <div className="flex h-screen flex-col">
-      <ErrorBoundary>
-        <Header
-          onAddPlace={openAddPlace}
+      <Header
+        onAddPlace={openAddPlace}
         onOpenStarterPack={() => setShowStarterPack(true)}
         onOpenChat={() => setChatOpen(true)}
         isPickingLocation={pickingLocation}
@@ -768,7 +746,6 @@ export default function Home() {
           />
         )}
       </main>
-      </ErrorBoundary>
 
       <footer className="flex items-center justify-center gap-4 border-t bg-background px-4 py-1.5 text-xs text-muted-foreground">
         <Link href="/privacy" className="hover:underline">

@@ -34,41 +34,21 @@ export interface ProfileUpdate {
 
 export async function updateProfile(
   userId: string,
-  fields: ProfileUpdate,
-  usernameFallback?: string
+  fields: ProfileUpdate
 ): Promise<Profile> {
   if (!supabase) throw new Error("Supabase nije konfigurisan.");
-
-  const values = {
-    bio: fields.bio?.trim() ? fields.bio.trim().slice(0, 300) : null,
-    instagram: fields.instagram?.trim() ? fields.instagram.trim() : null,
-    avatar_url: fields.avatar_url,
-  };
-
-  let username = (usernameFallback?.trim() || "student").slice(0, 30);
-  let attempt = 0;
-  while (attempt < 4) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .upsert({ id: userId, username, ...values }, { onConflict: "id" })
-      .select("*");
-    if (!error && data && data.length === 1) {
-      return mapRow(data[0] as Record<string, unknown>);
-    }
-    if (
-      !error ||
-      /unique|23505|duplicate/i.test(String(error.message))
-    ) {
-      if (attempt < 3) {
-        username = `${(usernameFallback?.trim() || "student")
-          .slice(0, 20)}_${Date.now().toString(36).slice(-5)}${attempt + 1}`;
-        attempt += 1;
-        continue;
-      }
-    }
-    throw error ?? new Error("Nisam uspeo da sacuvam profil.");
-  }
-  throw new Error("Nisam uspeo da sacuvam profil.");
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({
+      bio: fields.bio?.trim() ? fields.bio.trim().slice(0, 300) : null,
+      instagram: fields.instagram?.trim() ? fields.instagram.trim() : null,
+      avatar_url: fields.avatar_url,
+    })
+    .eq("id", userId)
+    .select("*")
+    .single();
+  if (error) throw error;
+  return mapRow(data as Record<string, unknown>);
 }
 
 export async function uploadAvatar(
@@ -83,11 +63,7 @@ export async function uploadAvatar(
 
   const { error } = await supabase.storage
     .from("avatars")
-    .upload(path, file, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: file.type || "image/jpeg",
-    });
+    .upload(path, file, { cacheControl: "3600", upsert: false });
 
   if (error) throw error;
 
