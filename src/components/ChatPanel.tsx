@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   deleteChatMessage,
   fetchProfileForChat,
+  fetchProfilesForChat,
   fetchRecentMessages,
   sendChatMessage,
 } from "@/lib/chat";
@@ -60,6 +61,7 @@ export default function ChatPanel({
 
   useEffect(() => {
     if (!client) return;
+    console.log("CHAT: subscribing");
     const channel = client
       .channel("global-chat")
       .on(
@@ -91,6 +93,7 @@ export default function ChatPanel({
       .subscribe();
 
     return () => {
+      console.log("CHAT: unsubscribing");
       client.removeChannel(channel);
     };
   }, [client]);
@@ -98,7 +101,7 @@ export default function ChatPanel({
   useEffect(() => {
     if (!client) return;
     let cancelled = false;
-    fetchRecentMessages(100)
+    fetchRecentMessages(50)
       .then((rows) => {
         if (!cancelled) {
           setMessages((prev) => {
@@ -129,7 +132,7 @@ export default function ChatPanel({
   useEffect(() => {
     if (!client) return;
     const timer = window.setInterval(() => {
-      fetchRecentMessages(100)
+      fetchRecentMessages(50)
         .then((rows) => {
           setMessages((prev) => {
             const seen = new Set(prev.map((m) => m.id));
@@ -156,21 +159,25 @@ export default function ChatPanel({
 
   useEffect(() => {
     if (!client) return;
-    const missing = [...new Set(messages.map((m) => m.user_id))]
-      .filter(
-        (uid) =>
-          !profilesById[uid] &&
-          !(uid in chatProfiles) &&
-          !seenProfiles.current.has(uid)
-      );
-    for (const uid of missing) {
-      seenProfiles.current.add(uid);
-      fetchProfileForChat(uid)
-        .then((p) =>
-          setChatProfiles((prev) => ({ ...prev, [uid]: p }))
-        )
-        .catch(() => undefined);
-    }
+    const missing = [...new Set(messages.map((m) => m.user_id))].filter(
+      (uid) =>
+        !profilesById[uid] &&
+        !(uid in chatProfiles) &&
+        !seenProfiles.current.has(uid)
+    );
+    if (missing.length === 0) return;
+    missing.forEach((uid) => seenProfiles.current.add(uid));
+    fetchProfilesForChat(missing)
+      .then((result) => {
+        setChatProfiles((prev) => {
+          const next = { ...prev };
+          for (const uid of missing) {
+            next[uid] = result[uid] ?? null;
+          }
+          return next;
+        });
+      })
+      .catch(() => undefined);
   }, [messages, profilesById, chatProfiles, client]);
 
   const authorOf = (uid: string) => {

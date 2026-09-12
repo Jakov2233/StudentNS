@@ -59,3 +59,22 @@ export async function fetchProfileForChat(
     avatar_url: data.avatar_url as string | null,
   };
 }
+
+export async function fetchProfilesForChat(
+  userIds: string[]
+): Promise<Record<string, { username: string; avatar_url: string | null }>> {
+  if (!supabase || userIds.length === 0) return {};
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, username, avatar_url")
+    .in("id", userIds);
+  if (error || !data) return {};
+  const result: Record<string, { username: string; avatar_url: string | null }> = {};
+  for (const row of data as Record<string, unknown>[]) {
+    result[row.id as string] = {
+      username: row.username as string,
+      avatar_url: row.avatar_url as string | null,
+    };
+  }
+  return result;
+}
