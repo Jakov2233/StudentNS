@@ -23,7 +23,7 @@ import {
   deletePlace,
   deletePlacePhoto,
 } from "@/lib/places";
-import { fetchProfiles, updateProfile } from "@/lib/profiles";
+import { fetchProfiles, fetchProfileById, updateProfile } from "@/lib/profiles";
 import { addFavorite, fetchFavorites, removeFavorite } from "@/lib/favorites";
 import { checkModerator } from "@/lib/moderators";
 import { deleteReview, fetchReviews, upsertReview } from "@/lib/reviews";
@@ -512,6 +512,22 @@ export default function Home() {
     }
   };
 
+  const handleOpenProfile = useCallback(
+    (userId: string) => {
+      setProfileViewId(userId);
+      if (!profilesById[userId]) {
+        fetchProfileById(userId)
+          .then((p) => {
+            if (p) {
+              setProfilesById((prev) => ({ ...prev, [p.id]: p }));
+            }
+          })
+          .catch(() => undefined);
+      }
+    },
+    [profilesById]
+  );
+
   const handleLogout = async () => {
     await supabase?.auth.signOut();
   };
@@ -742,6 +758,10 @@ export default function Home() {
             profilesById={profilesById}
             canModerate={viewerIsModerator}
             onRequireLogin={() => setShowAuthModal(true)}
+            onOpenProfile={(uid) => {
+              setChatOpen(false);
+              handleOpenProfile(uid);
+            }}
             onClose={() => setChatOpen(false)}
           />
         )}

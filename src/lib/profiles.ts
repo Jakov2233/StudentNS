@@ -76,3 +76,16 @@ export async function deleteAvatar(avatarUrl: string): Promise<void> {
   if (!path) return;
   await deleteStorageObject("avatars", path);
 }
+
+export async function fetchProfileById(
+  userId: string
+): Promise<Profile | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return mapRow(data as Record<string, unknown>);
+}

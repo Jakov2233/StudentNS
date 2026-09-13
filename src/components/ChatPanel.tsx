@@ -19,6 +19,7 @@ interface ChatPanelProps {
   profilesById: Record<string, Profile>;
   canModerate: boolean;
   onRequireLogin: () => void;
+  onOpenProfile: (userId: string) => void;
   onClose: () => void;
 }
 
@@ -44,6 +45,7 @@ export default function ChatPanel({
   profilesById,
   canModerate,
   onRequireLogin,
+  onOpenProfile,
   onClose,
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -251,21 +253,27 @@ export default function ChatPanel({
           const isMod = modIds.has(m.user_id);
           return (
             <div key={m.id} className="border-b border-neutral-100 px-3 py-2">
-              <div className="flex items-center gap-2">
-                {author.avatar_url ? (
-                  <img
-                    src={author.avatar_url}
-                    alt={author.username}
-                    className="h-6 w-6 shrink-0 rounded-full border border-neutral-300 object-cover"
-                  />
-                ) : (
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-neutral-300 bg-[#f1f3e0] text-[10px] font-bold text-[#5a6f43]">
-                    {initialsOf(author.username)}
+              <div className="flex items-center gap-0.5">
+                <button
+                  onClick={() => onOpenProfile(m.user_id)}
+                  className="group flex min-w-0 items-center gap-2 rounded px-1 py-0.5 hover:bg-neutral-100"
+                  title="Pogledaj profil"
+                >
+                  {author.avatar_url ? (
+                    <img
+                      src={author.avatar_url}
+                      alt={author.username}
+                      className="h-6 w-6 shrink-0 rounded-full border border-neutral-300 object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-neutral-300 bg-[#f1f3e0] text-[10px] font-bold text-[#5a6f43]">
+                      {initialsOf(author.username)}
+                    </span>
+                  )}
+                  <span className="truncate text-sm font-semibold group-hover:underline">
+                    {`@${author.username}`}
                   </span>
-                )}
-                <span className="truncate text-sm font-semibold">
-                  {`@${author.username}`}
-                </span>
+                </button>
                 {isMod && (
                   <span className="flex items-center gap-0.5 text-[10px] font-semibold text-[#5a6f43]">
                     <svg
@@ -282,8 +290,8 @@ export default function ChatPanel({
                   </span>
                 )}
                 <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">
-                  {formatTime(m.created_at)}
-                </span>
+                    {formatTime(m.created_at)}
+                  </span>
                 {canModerate && (
                   <button
                     onClick={() => handleDelete(m.id)}
