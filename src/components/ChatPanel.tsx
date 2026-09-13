@@ -61,41 +61,10 @@ export default function ChatPanel({
 
   useEffect(() => {
     if (!client) return;
-    console.log("CHAT: subscribing");
-    const channel = client
-      .channel("global-chat")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "chat_messages" },
-        (payload) => {
-          const row = payload.new as Record<string, unknown>;
-          const msg: ChatMessage = {
-            id: row.id as string,
-            user_id: row.user_id as string,
-            message: row.message as string,
-            created_at: row.created_at as string,
-          };
-          setMessages((prev) =>
-            prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]
-          );
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "chat_messages" },
-        (payload) => {
-          const old = payload.old as Record<string, unknown> | null;
-          if (!old) return;
-          const id = old.id as string;
-          setMessages((prev) => prev.filter((m) => m.id !== id));
-        }
-      )
-      .subscribe();
-
-    return () => {
-      console.log("CHAT: unsubscribing");
-      client.removeChannel(channel);
-    };
+    // Privremeno iskljuceno radi testiranja — websocket se ne otvara,
+    // cet radi preko 15s pollinga u useEffect-u ispod.
+    console.log("CHAT: realtime iskljucen (websocket ne radi)");
+    return;
   }, [client]);
 
   useEffect(() => {
